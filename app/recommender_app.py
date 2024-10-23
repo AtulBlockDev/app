@@ -14,14 +14,11 @@ st.set_page_config(
    initial_sidebar_state="expanded",
 )
 
-# Define file paths if required (adjust the path if needed)
-ratings_path = "path_to_ratings_file.csv"
-
 # ------- Functions ------
 # Load datasets
 @st.cache_data
 def load_ratings():
-    return backend.load_ratings(ratings_path)
+    return backend.load_ratings()  # No arguments passed now
 
 @st.cache_data
 def load_course_sims():
@@ -156,4 +153,3 @@ if pred_button and selected_courses_df.shape[0] > 0:
     course_df = load_courses()
     res_df = pd.merge(res_df, course_df, on=["COURSE_ID"]).drop('COURSE_ID', axis=1)
     st.table(res_df)
-
