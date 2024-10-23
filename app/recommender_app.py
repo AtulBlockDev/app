@@ -21,9 +21,10 @@ current_dir = os.path.dirname(__file__)
 # ------- Functions ------
 # Modify load functions to handle file paths correctly
 @st.cache
-def load_ratings():
+def load_ratings(file_path):
     ratings_path = os.path.join(current_dir, 'ratings.csv')
-    return backend.load_ratings(ratings_path)  # Pass the path to backend
+    return backend.load_ratings(ratings_path)
+    return pd.read_csv(file_path)# Pass the path to backend
 
 @st.cache
 def load_course_sims():
@@ -45,7 +46,7 @@ def load_bow():
 def init__recommender_app():
 
     with st.spinner('Loading datasets...'):
-        ratings_df = load_ratings()
+        ratings_df = load_ratings(ratings_path)
         sim_df = load_course_sims()
         course_df = load_courses()
         course_bow_df = load_bow()
