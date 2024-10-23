@@ -1,7 +1,6 @@
 import streamlit as st
 import pandas as pd
 import time
-import os
 import backend as backend
 
 from st_aggrid import AgGrid
@@ -15,30 +14,27 @@ st.set_page_config(
    initial_sidebar_state="expanded",
 )
 
-# Get the directory of the current file
-current_dir = os.path.dirname(__file__)
 
 # ------- Functions ------
-# Modify load functions to handle file paths correctly
+# Load datasets
 @st.cache
 def load_ratings():
-    ratings_path = os.path.join(current_dir, 'ratings.csv')
-    return backend.load_ratings(ratings_path)  # Pass the path to backend
+    return backend.load_ratings()
+
 
 @st.cache
 def load_course_sims():
-    sims_path = os.path.join(current_dir, 'sim.csv')
-    return backend.load_course_sims(sims_path)  # Pass the path to backend
+    return backend.load_course_sims()
+
 
 @st.cache
 def load_courses():
-    courses_path = os.path.join(current_dir, 'course_processed.csv')
-    return backend.load_courses(courses_path)  # Pass the path to backend
+    return backend.load_courses()
+
 
 @st.cache
 def load_bow():
-    bow_path = os.path.join(current_dir, 'courses_bows.csv')
-    return backend.load_bow(bow_path)  # Pass the path to backend
+    return backend.load_bow()
 
 
 # Initialize the app by first loading datasets
