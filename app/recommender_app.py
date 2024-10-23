@@ -1,7 +1,6 @@
 import streamlit as st
 import pandas as pd
 import time
-import os
 import backend as backend
 
 from st_aggrid import AgGrid
@@ -15,56 +14,45 @@ st.set_page_config(
    initial_sidebar_state="expanded",
 )
 
-# Get the directory of the current file
-current_dir = os.path.dirname(__file__)
+# Define file paths if required (adjust the path if needed)
+ratings_path = "path_to_ratings_file.csv"
 
 # ------- Functions ------
-# Modify load functions to handle file paths correctly
-@st.cache
-def load_ratings(file_path):
-    ratings_path = os.path.join(current_dir, 'ratings.csv')
+# Load datasets
+@st.cache_data
+def load_ratings():
     return backend.load_ratings(ratings_path)
-    return pd.read_csv(file_path)# Pass the path to backend
 
-@st.cache
+@st.cache_data
 def load_course_sims():
-    sims_path = os.path.join(current_dir, 'sim.csv')
-    return backend.load_course_sims(sims_path)  # Pass the path to backend
+    return backend.load_course_sims()
 
-@st.cache
+@st.cache_data
 def load_courses():
-    courses_path = os.path.join(current_dir, 'course_processed.csv')
-    return backend.load_courses(courses_path)  # Pass the path to backend
+    return backend.load_courses()
 
-@st.cache
+@st.cache_data
 def load_bow():
-    bow_path = os.path.join(current_dir, 'courses_bows.csv')
-    return backend.load_bow(bow_path)  # Pass the path to backend
-
+    return backend.load_bow()
 
 # Initialize the app by first loading datasets
 def init__recommender_app():
-
     with st.spinner('Loading datasets...'):
-        ratings_df = load_ratings(ratings_path)
+        ratings_df = load_ratings()
         sim_df = load_course_sims()
         course_df = load_courses()
         course_bow_df = load_bow()
 
-    # Select courses
     st.success('Datasets loaded successfully...')
-
     st.markdown("""---""")
     st.subheader("Select courses that you have audited or completed: ")
 
-    # Build an interactive table for `course_df`
     gb = GridOptionsBuilder.from_dataframe(course_df)
     gb.configure_default_column(enablePivot=True, enableValue=True, enableRowGroup=True)
     gb.configure_selection(selection_mode="multiple", use_checkbox=True)
     gb.configure_side_bar()
     grid_options = gb.build()
 
-    # Create a grid response
     response = AgGrid(
         course_df,
         gridOptions=grid_options,
@@ -82,14 +70,12 @@ def init__recommender_app():
 
 
 def train(model_name, params):
-
     if model_name == backend.models[0]:
         # Start training course similarity model
         with st.spinner('Training...'):
             time.sleep(0.5)
             backend.train(model_name)
         st.success('Done!')
-    # TODO: Add other model training code here
     elif model_name == backend.models[1]:
         pass
     else:
@@ -134,7 +120,6 @@ if model_selection == backend.models[0]:
                                              value=50, step=10)
     params['top_courses'] = top_courses
     params['sim_threshold'] = course_sim_threshold
-# TODO: Add hyper-parameters for other models
 # User profile model
 elif model_selection == backend.models[1]:
     profile_sim_threshold = st.sidebar.slider('User Profile Similarity Threshold %',
@@ -171,3 +156,4 @@ if pred_button and selected_courses_df.shape[0] > 0:
     course_df = load_courses()
     res_df = pd.merge(res_df, course_df, on=["COURSE_ID"]).drop('COURSE_ID', axis=1)
     st.table(res_df)
+
